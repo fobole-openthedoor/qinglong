@@ -9,7 +9,9 @@
 const { sendNotify } = require('./sendNotify.js'); // commonjs
 
 // 需要安装cheerio依赖
+const fs = require('fs');
 const cheerio = require('cheerio');
+const path = './notifiedMessages.json';
 
 // 使用chrome导出的 fetch 
 async function checkMessages() {
@@ -46,7 +48,9 @@ async function checkMessages() {
         const html = await response.text();
         const $ = cheerio.load(html);
 
-        // 查找并处理新私信
+        // 读取已通知的私信
+        const notifiedMessages = fs.existsSync(path) ? JSON.parse(fs.readFileSync(path)) : {};
+
         $('div.listmms').each((index, element) => {
             const imgSrc = $(element).find('img').attr('src');
             if (imgSrc === '/NetImages/new.gif') {
@@ -55,10 +59,22 @@ async function checkMessages() {
                 const timeMatch = $(element).text().match(/\d{4}\/\d{1,2}\/\d{1,2} \d{1,2}:\d{2}/);
                 const time = timeMatch ? timeMatch[0] : '未知时间';
                 const detailLink = $(element).find('a').first().attr('href');
-                const notificationContent = `事件: ${messageContent}\n来自: ${sender}\n时间: ${time}\n链接: https://yaohuo.me${detailLink}`;
-                notify(notificationContent);
+                const idMatch = detailLink.match(/id=(\d+)/g);
+                const messageId = idMatch ? idMatch[idMatch.length - 1].split('=')[1] : null;
+
+                if (!notifiedMessages[messageId]) {
+                    notifiedMessages[messageId] = true;
+
+                    const notificationContent = `来自: ${sender}\n内容: ${messageContent}\n\n时间: ${time}\n链接: https://yaohuo.me${detailLink}`;
+                    notify(notificationContent);
+                }else{
+                    console.log(messageId+'已经通知过了');
+                }
             }
         });
+
+        // 更新私信记录
+        fs.writeFileSync(path, JSON.stringify(notifiedMessages));
     } catch (error) {
         console.error('Error checking messages:', error);
     }
@@ -67,7 +83,7 @@ async function checkMessages() {
 function notify(message) {
     // 使用青龙的通知功能
     console.log(message); 
-    sendNotify('妖火新私信通知',message);
+    sendNotify('妖火新私信',message);
 }
 
 // 运行脚本
