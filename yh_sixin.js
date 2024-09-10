@@ -47,13 +47,17 @@ async function checkMessages() {
 
         const html = await response.text();
         const $ = cheerio.load(html);
-
+        if ($('a[href="/myfile.aspx"]').length === 0) {
+            console.log("无法访问私信页面,请尝试更新cookie。");
+            return;
+        }
         // 读取已通知的私信
         const notifiedMessages = fs.existsSync(path) ? JSON.parse(fs.readFileSync(path)) : {};
-
+        let newMessageFound = false;
         $('div.listmms').each((index, element) => {
             const imgSrc = $(element).find('img').attr('src');
             if (imgSrc === '/NetImages/new.gif') {
+                newMessageFound = true;
                 const messageContent = $(element).find('a').first().text().trim();
                 const sender = $(element).find('span.laizi').get(0).nextSibling.nodeValue.trim();
                 const timeMatch = $(element).text().match(/\d{4}\/\d{1,2}\/\d{1,2} \d{1,2}:\d{2}/);
@@ -72,7 +76,9 @@ async function checkMessages() {
                 }
             }
         });
-
+        if (!newMessageFound) {
+            console.log("未获取到新私信。");
+        }
         // 更新私信记录
         fs.writeFileSync(path, JSON.stringify(notifiedMessages));
     } catch (error) {
