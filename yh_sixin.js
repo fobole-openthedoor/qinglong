@@ -55,22 +55,25 @@ async function checkMessages() {
         const notifiedMessages = fs.existsSync(path) ? JSON.parse(fs.readFileSync(path)) : {};
         let newMessageFound = false;
         $('div.listmms').each((index, element) => {
-            const imgSrc = $(element).find('img').attr('src');
-            if (imgSrc === '/NetImages/new.gif') {
+            const isEvent = $(element).find('img[src="/NetImages/msg.png"]').length > 0; //新增非私信通知，包括评论回复、加为好友、打赏妖精
+            const isNew = $(element).find('img[src="/NetImages/new.gif"]').length > 0;
+            //const imgSrc = $(element).find('img').attr('src'); //取消 img 标签判断
+            if (isNew) {
                 newMessageFound = true;
                 const messageContent = $(element).find('a').first().text().trim();
                 const sender = $(element).find('span.laizi').get(0).nextSibling.nodeValue.trim();
                 const timeMatch = $(element).text().match(/\d{4}\/\d{1,2}\/\d{1,2} \d{1,2}:\d{2}/);
                 const time = timeMatch ? timeMatch[0] : '未知时间';
                 const detailLink = $(element).find('a').first().attr('href');
+
+                // 提取最后一个 ID
                 const idMatch = detailLink.match(/id=(\d+)/g);
                 const messageId = idMatch ? idMatch[idMatch.length - 1].split('=')[1] : null;
-
                 if (!notifiedMessages[messageId]) {
                     notifiedMessages[messageId] = true;
-
+                    const type = isEvent ? "事件" : "私信";
                     const notificationContent = `来自: ${sender}\n内容: ${messageContent}\n\n时间: ${time}\n链接: https://yaohuo.me${detailLink}`;
-                    notify(notificationContent);
+                    notify(type,notificationContent);
                 }else{
                     console.log(messageId+'已经通知过了');
                 }
@@ -86,10 +89,10 @@ async function checkMessages() {
     }
 }
 
-function notify(message) {
+function notify(type,message) {
     // 使用青龙的通知功能
     console.log(message); 
-    sendNotify('妖火新私信',message);
+    sendNotify('妖火新'+type,message);
 }
 
 // 运行脚本
