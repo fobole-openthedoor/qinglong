@@ -20,7 +20,7 @@ async function checkMessages() {
         const cookie = process.env.YAOHUO_COOKIE;
         //console.log(cookie);
         if (!cookie) {
-            console.log("请在环境变量中设置 cookie。环境名为YAOHUO_COOKIE 值为 cookie");
+            console.log("请在环境变量中设置 cookie。环境名为YAOHUO_COOKIE 值为从浏览器中获取到的cookie");
             return;
         }
 
