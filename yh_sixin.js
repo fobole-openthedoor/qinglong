@@ -50,8 +50,8 @@ async function checkMessages() {
 
         const html = await response.text();
         const $ = cheerio.load(html);
-        if ($('a[href="/myfile.aspx"]').length === 0) {
-            console.log("无法访问私信页面,请尝试更新cookie。");
+        if ($('a:contains("清空聊天消息")').length === 0) {
+            console.log("1.无法访问私信页面,请尝试更新cookie。\n 2.妖火 web 更改需要重新匹配，请联系id：8087 修改");
             return;
         }
         // 读取已通知的私信
