@@ -26,7 +26,7 @@ async function checkMessages() {
 
 
 
-        const response = await fetch("https://www.yaohuo.me/bbs/messagelist.aspx?action=class&siteid=1000&classid=0&types=0&issystem=", {
+        const response = await await fetch("https://yaohuo.me/bbs/messagelist.aspx", {
         "headers": {
             "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
             "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
@@ -43,10 +43,10 @@ async function checkMessages() {
             "upgrade-insecure-requests": "1",
             "cookie": cookie
         },
-  "referrerPolicy": "strict-origin-when-cross-origin",
-  "body": null,
-  "method": "GET"
-});
+      "referrerPolicy": "strict-origin-when-cross-origin",
+      "body": null,
+      "method": "GET"
+    });
 
         const html = await response.text();
         const $ = cheerio.load(html);
